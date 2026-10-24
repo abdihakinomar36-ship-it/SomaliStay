@@ -42,27 +42,31 @@ export async function GET(request: NextRequest) {
         },
       }
     );
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      // Expired or already-used code: do not pretend the session was restored.
+      return NextResponse.redirect(
+        `${origin}/${defaultLocale}/auth/sign-in?auth_error=${encodeURIComponent(error.code || "otp_expired")}`
+      );
+    }
     return response;
   }
 
   // No code: Supabase reports failures (e.g. expired links) in the URL hash
-  // (#error=...), which never reaches the server. If a valid next destination
-  // is present, redirect there directly (auth-guards keep the intent);
-  // otherwise serve a minimal page that forwards hash errors to the sign-in
-  // page with a visible message.
+  // (#error=...), which never reaches the server. Serve a minimal page that
+  // first checks the hash for an error, and only then forwards the user to
+  // the validated destination (auth-guards keep the intent) or sign-in.
   const fallbackNext = safeNext();
-  if (fallbackNext) {
-    return NextResponse.redirect(`${origin}${fallbackNext}`);
-  }
+  const destination = fallbackNext ?? `/${defaultLocale}/auth/sign-in`;
   return new NextResponse(
     `<!doctype html><html><body><script>
       (function(){
         var h = (location.hash||"").replace(/^#/,"?");
         var p = new URLSearchParams(h);
         var err = p.get("error");
-        var base = ${JSON.stringify(`/${defaultLocale}/auth/sign-in`)};
-        location.replace(err ? base + "?auth_error=" + encodeURIComponent(err) : base);
+        var signIn = ${JSON.stringify(`/${defaultLocale}/auth/sign-in`)};
+        var next = ${JSON.stringify(destination)};
+        location.replace(err ? signIn + "?auth_error=" + encodeURIComponent(err) : next);
       })();
     </script></body></html>`,
     { headers: { "content-type": "text/html; charset=utf-8" } }

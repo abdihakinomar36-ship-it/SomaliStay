@@ -7,7 +7,7 @@ export const so: Dictionary = {
   nav: {
     home: "Bogga Hore",
     hotels: "Hoteelada",
-    partner: "Hoteelada",
+    partner: "Hoteelkaaga",
     admin: "Maamulka",
     signIn: "Gal",
     signUp: "Isdiiwaangeli",

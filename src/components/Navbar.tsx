@@ -34,10 +34,13 @@ export default function Navbar({
     captureAndSaveFormState(pathname);
     const parts = pathname.split("/");
     parts[1] = next;
+    // Preserve the query string (e.g. ?intent=partner or search filters) so
+    // switching languages never loses the visitor's context.
+    const query = typeof window !== "undefined" ? window.location.search : "";
     document.cookie = `somalistay-locale=${next}; path=/; max-age=31536000; samesite=lax`;
     // Persist the preference on the user's profile when signed in.
     void setPreferredLocaleAction(next);
-    router.push(parts.join("/") || `/${next}`);
+    router.push((parts.join("/") || `/${next}`) + query);
     router.refresh();
   }
 
