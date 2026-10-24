@@ -28,7 +28,13 @@ export function captureAndSaveFormState(pathname: string): void {
     document.querySelectorAll("input, select, textarea").forEach((el) => {
       const input = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       const type = "type" in input ? input.type : "";
-      if (type === "password" || type === "file" || input.closest("[data-no-preserve]")) return;
+      if (
+        type === "password" ||
+        type === "file" ||
+        type === "hidden" ||
+        input.closest("[data-no-preserve]")
+      )
+        return;
       if (!input.name && !input.id) return;
       fields.push({
         id: input.id,

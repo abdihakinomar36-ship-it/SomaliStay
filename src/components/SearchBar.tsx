@@ -49,7 +49,7 @@ export default function SearchBar({
   return (
     <form
       onSubmit={submit}
-      className="card grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5"
+      className="card grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_0.7fr_auto]"
     >
       <div className="lg:col-span-1">
         <label className="label" htmlFor="search-city">{t.common.city}</label>
